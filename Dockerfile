@@ -17,8 +17,8 @@ RUN composer require \
 # ─────────────────────────────────────────────────────
 # Layer 2: Local extensions (on-disk source)
 # ─────────────────────────────────────────────────────
-COPY extensions/translate_flarum/flarum-ext-translate /data/extensions/translate_flarum
-RUN composer config repositories.twikura-translate path /data/extensions/translate_flarum \
+COPY extensions/translate_flarum/flarum-ext-translate /my-extensions/translate_flarum
+RUN composer config repositories.twikura-translate path /my-extensions/translate_flarum \
     && composer require twikura/flarum-ext-translate:@dev
 
 # ─────────────────────────────────────────────────────
