@@ -1,0 +1,72 @@
+services:
+  flarum:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8888:8000"
+    environment:
+      - TZ=Asia/Shanghai
+      - FLARUM_BASE_URL=${FLARUM_BASE_URL:-https://forum.example.com}
+      - FLARUM_FORCE_HTTPS=${FLARUM_FORCE_HTTPS:-true}
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME:-flarum}
+      - DB_USER=${DB_USER:-flarum_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST:-cache}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+    volumes:
+      - ./data:/data
+    depends_on:
+      - db
+      - cache
+      - translator
+    networks:
+      - flarum-network
+
+  db:
+    image: mariadb:10.11
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME:-flarum}
+      - MYSQL_USER=${DB_USER:-flarum_user}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - flarum-network
+
+  cache:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - ./redis:/data
+    networks:
+      - flarum-network
+
+  translator:
+    build:
+      context: ./extensions/translate_flarum/fastapi-translator
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME:-flarum}
+      - DB_USER=${DB_USER:-flarum_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    volumes:
+      - ./extensions/translate_flarum/fastapi-translator/config.yaml:/app/config.yaml
+    depends_on:
+      - db
+    networks:
+      - flarum-network
+
+networks:
+  flarum-network:
+    driver: bridge

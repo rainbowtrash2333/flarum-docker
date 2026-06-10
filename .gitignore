@@ -1,0 +1,21 @@
+# 环境变量
+.env
+
+# 数据目录
+data/
+data-dev/
+mysql/
+mysql-dev/
+redis/
+redis-dev/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug
+Dockerfile.dev.debug

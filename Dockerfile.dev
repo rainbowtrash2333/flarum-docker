@@ -1,0 +1,12 @@
+FROM flarum-prod-flarum:latest
+
+WORKDIR /opt/flarum
+
+RUN composer require justoverclock/flarum-ext-hashtag
+
+COPY extensions/translate_flarum/flarum-ext-translate /data/extensions/translate_flarum
+
+RUN composer config repositories.twikura-translate path /data/extensions/translate_flarum \
+    && composer require twikura/flarum-ext-translate:@dev
+
+RUN rm -rf ~/.composer/cache
