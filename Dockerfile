@@ -8,14 +8,19 @@ WORKDIR /opt/flarum
 RUN composer require \
     flarum-lang/chinese-simplified \
     flarum-lang/spanish \
-    nhanchaukp/login-to-see \
     fof/analytics:* \
     fof/formatting \
     fof/photoswipe \
     darkle/fancybox
 
 # ─────────────────────────────────────────────────────
-# Layer 2: Local extensions (on-disk source)
+# Layer 2: Plugin from GitHub fork (VCS repository)
+# ─────────────────────────────────────────────────────
+RUN composer config repositories.login2see vcs https://github.com/rainbowtrash2333/flarum-login2see \
+    && composer require rainbowtrash2333/flarum-login2see:@dev
+
+# ─────────────────────────────────────────────────────
+# Layer 3: Local extensions (on-disk source)
 # ─────────────────────────────────────────────────────
 COPY extensions/translate_flarum/flarum-ext-translate /my-extensions/translate_flarum
 RUN composer config repositories.twikura-translate path /my-extensions/translate_flarum \
