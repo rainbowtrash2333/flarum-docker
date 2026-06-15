@@ -11,7 +11,9 @@ RUN composer require \
     fof/analytics:* \
     fof/formatting \
     fof/photoswipe \
-    darkle/fancybox
+    darkle/fancybox \
+    walsgit/flarum-discussion-cards \
+    forumaker/magicbb
 
 # ─────────────────────────────────────────────────────
 # Layer 2: Plugin from GitHub fork (VCS repository)
