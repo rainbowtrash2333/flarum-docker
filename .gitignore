@@ -18,4 +18,4 @@ redis-dev/
 Thumbs.db
 
 # Debug
-Dockerfile.dev.debug
+Dockerfile.dev.debug.omo/
