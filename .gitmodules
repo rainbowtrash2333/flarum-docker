@@ -1,0 +1,6 @@
+[submodule "extensions/translate_flarum"]
+	path = extensions/translate_flarum
+	url = https://github.com/rainbowtrash2333/translate_flarum.git
+[submodule "extensions/login2see"]
+	path = extensions/login2see
+	url = https://github.com/rainbowtrash2333/flarum-login2see.git
