@@ -39,7 +39,7 @@ RUN composer config repositories.twikura-translate path /my-extensions/translate
 # ─────────────────────────────────────────────────────
 RUN apk add --no-cache nodejs npm
 WORKDIR /my-extensions/translate_flarum/js
-RUN npm ci
+RUN npm install
 RUN npm run build
 WORKDIR /opt/flarum
 
