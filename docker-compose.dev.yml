@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
       - cache
-      - translator
+      - translator-worker
     networks:
       - flarum-network
 
@@ -50,26 +50,27 @@ services:
     networks:
       - flarum-network
 
-  translator:
+  translator-worker:
     build:
-      context: ./extensions/translate_flarum/fastapi-translator
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.dev
     restart: always
-    ports:
-      - "8001:8000"
+    command: ["php", "flarum", "translate:run"]
     environment:
       - TZ=Asia/Shanghai
       - DB_HOST=db
       - DB_NAME=${DB_NAME:-flarum}
       - DB_USER=${DB_USER:-flarum_user}
       - DB_PASSWORD=${DB_PASSWORD:-X_ZsxP9X9UsaQxkFgY}
-      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-sk-9cd98a47b35f46f0a10358358fb3af8d}
-    volumes:
-      - ./extensions/translate_flarum/fastapi-translator/config.yaml:/app/config.yaml
     depends_on:
       - db
     networks:
       - flarum-network
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'flarum translate:run' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 networks:
   flarum-network:

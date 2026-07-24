@@ -13,4 +13,11 @@ COPY extensions/translate_flarum/flarum-ext-translate /my-extensions/translate_f
 RUN composer config repositories.twikura-translate path /my-extensions/translate_flarum \
     && composer require twikura/flarum-ext-translate:@dev
 
+# Build JS frontend assets for the translate extension
+RUN apk add --no-cache nodejs npm
+WORKDIR /my-extensions/translate_flarum/js
+RUN npm ci
+RUN npm run build
+WORKDIR /opt/flarum
+
 RUN rm -rf ~/.composer/cache

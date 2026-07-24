@@ -3,6 +3,12 @@ FROM crazymax/flarum:latest
 WORKDIR /opt/flarum
 
 # ─────────────────────────────────────────────────────
+# Pre-requisites: git for VCS composer repositories
+# ─────────────────────────────────────────────────────
+RUN apk add --no-cache git \
+    && git config --global url."https://github.com/".insteadOf git@github.com:
+
+# ─────────────────────────────────────────────────────
 # Layer 1: Third-party Composer plugins (remote)
 # ─────────────────────────────────────────────────────
 RUN composer require \
@@ -27,6 +33,15 @@ RUN composer config repositories.login2see vcs https://github.com/rainbowtrash23
 COPY extensions/translate_flarum/flarum-ext-translate /my-extensions/translate_flarum
 RUN composer config repositories.twikura-translate path /my-extensions/translate_flarum \
     && composer require twikura/flarum-ext-translate:@dev
+
+# ─────────────────────────────────────────────────────
+# Layer 4: Build JS frontend assets
+# ─────────────────────────────────────────────────────
+RUN apk add --no-cache nodejs npm
+WORKDIR /my-extensions/translate_flarum/js
+RUN npm ci
+RUN npm run build
+WORKDIR /opt/flarum
 
 # ─────────────────────────────────────────────────────
 # Cleanup: remove Composer cache to keep the image lean
