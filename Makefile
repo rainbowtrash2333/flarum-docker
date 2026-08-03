@@ -12,8 +12,9 @@ DEV_PROJECT_NAME := flarum-dev
 DC := docker compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE)
 DC_DEV := docker compose -p $(DEV_PROJECT_NAME) -f $(DEV_COMPOSE_FILE)
 
-.PHONY: help build rebuild up down restart logs ps shell pull update cache-clear deploy clean \
-        dev-build dev-up dev-down dev-restart dev-logs dev-ps dev-shell dev-rebuild dev-clean
+.PHONY: help build rebuild pull up down restart logs ps shell pull update cache-clear deploy clean \
+        migrate dev-build dev-up dev-down dev-restart dev-logs dev-ps dev-shell dev-rebuild dev-clean \
+        dev-migrate dev-cache-clear dev-deploy dev-logs-worker
 
 ##@ Default
 
@@ -57,9 +58,13 @@ update: ## Update flarum dependencies inside the running container
 cache-clear: ## Clear flarum cache (storage/cache + storage/views)
 	$(DC) exec flarum rm -rf storage/cache/* storage/views/*
 
-deploy: build ## Full deployment: build → up → cache:clear
+deploy: build ## Full production deploy: build → up → migrate → cache:clear
 	$(DC) up -d
-	$(DC) exec flarum rm -rf storage/cache/* storage/views/*
+	$(DC) exec flarum php flarum migrate
+	$(DC) exec flarum php flarum cache:clear
+
+migrate: ## Apply pending DB migrations (php flarum migrate)
+	$(DC) exec flarum php flarum migrate
 
 clean: down ## Full teardown: stop containers + remove built image
 	docker rmi $$(docker images -q '$(PROJECT_NAME)*' 2>/dev/null || true) 2>/dev/null || true
@@ -90,6 +95,19 @@ dev-ps: ## Show dev service status
 
 dev-shell: ## Open a bash shell inside the dev flarum container
 	$(DC_DEV) exec flarum bash
+
+dev-migrate: ## Apply pending DB migrations in the dev container
+	$(DC_DEV) exec flarum php flarum migrate
+
+dev-cache-clear: ## Clear flarum cache + republish assets (php flarum cache:clear)
+	$(DC_DEV) exec flarum php flarum cache:clear
+
+dev-deploy: dev-build dev-up ## Full dev deploy: build → up → migrate → cache:clear
+	$(DC_DEV) exec flarum php flarum migrate
+	$(DC_DEV) exec flarum php flarum cache:clear
+
+dev-logs-worker: ## Tail translator-worker logs (-f)
+	$(DC_DEV) logs -f translator-worker
 
 dev-clean: dev-down ## Full teardown: stop dev containers + remove built image
 	docker rmi $$(docker images -q '$(DEV_PROJECT_NAME)*' 2>/dev/null || true) 2>/dev/null || true
