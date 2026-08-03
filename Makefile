@@ -60,7 +60,7 @@ cache-clear: ## Clear flarum cache (storage/cache + storage/views)
 
 deploy: build ## Full production deploy: build → up → migrate → cache:clear
 	$(DC) up -d
-	$(DC) exec flarum php flarum migrate
+	$(DC) exec flarum sh -c 'i=0; until php flarum migrate 2>/dev/null; do i=$$((i+1)); if [ $$i -ge 10 ]; then php flarum migrate; exit 1; fi; sleep 3; done'
 	$(DC) exec flarum php flarum cache:clear
 
 migrate: ## Apply pending DB migrations (php flarum migrate)
@@ -103,7 +103,7 @@ dev-cache-clear: ## Clear flarum cache + republish assets (php flarum cache:clea
 	$(DC_DEV) exec flarum php flarum cache:clear
 
 dev-deploy: dev-build dev-up ## Full dev deploy: build → up → migrate → cache:clear
-	$(DC_DEV) exec flarum php flarum migrate
+	$(DC_DEV) exec flarum sh -c 'i=0; until php flarum migrate 2>/dev/null; do i=$$((i+1)); if [ $$i -ge 10 ]; then php flarum migrate; exit 1; fi; sleep 3; done'
 	$(DC_DEV) exec flarum php flarum cache:clear
 
 dev-logs-worker: ## Tail translator-worker logs (-f)
