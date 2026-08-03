@@ -14,13 +14,19 @@ DC_DEV := docker compose -p $(DEV_PROJECT_NAME) -f $(DEV_COMPOSE_FILE)
 
 .PHONY: help build rebuild pull up down restart logs ps shell pull update cache-clear deploy clean \
         migrate dev-build dev-up dev-down dev-restart dev-logs dev-ps dev-shell dev-rebuild dev-clean \
-        dev-migrate dev-cache-clear dev-deploy dev-logs-worker
+        dev-migrate dev-cache-clear dev-deploy dev-logs-worker pull-all
 
 ##@ Default
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
+
+##@ Source
+
+pull-all: ## Pull latest code: this repo + submodules (checks out pinned commits)
+	git pull
+	git submodule update --init --recursive
 
 ##@ Production
 
